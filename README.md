@@ -10,7 +10,7 @@ Built by Nikki Safarova as a solo project. Plain HTML and JavaScript with a smal
 
 1. Get a free key from Google AI Studio. Do not enable billing on that key's project.
 2. Import the repo into Vercel.
-3. Add an environment variable named `GEMINI_API_KEY`. Optionally set `GEMINI_MODEL` (default `gemini-3.8-flash`).
+3. Add an environment variable named `GEMINI_API_KEY`. Optionally set `GEMINI_MODEL` (default `gemini-3.8-flash`, with automatic fallback to `gemini-3.6-flash` and `gemini-3.5-flash-lite` when busy).
 4. Deploy.
 
 The key stays on the server in `api/generate.js`. The browser never sees it. Cases are saved in the browser's localStorage, so they do not sync across devices.

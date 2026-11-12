@@ -3,7 +3,7 @@
 // Set GEMINI_API_KEY in Vercel project settings. Use a key from Google AI Studio
 // that does NOT have billing enabled, so the free tier can never charge you.
 
-const MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
+const MODELS = [process.env.GEMINI_MODEL || "gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite"];
 const MAX_OUTPUT_TOKENS = 2500;
 
 function toText(content) {
@@ -48,22 +48,29 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Gemini sometimes answers 503 (high demand). Retry a few times with a short pause.
+    // Gemini can answer 503 (high demand). Try the next model in the list instead of waiting.
     let upstream, data;
-    for (let attempt = 0; attempt < 4; attempt++) {
-      upstream = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
-          body: JSON.stringify(body),
-          signal: AbortSignal.timeout(40000),
-        }
-      );
-      data = await upstream.json();
-      if (upstream.status !== 503 && upstream.status !== 500) break;
-      console.error("Gemini busy, attempt", attempt + 1, upstream.status);
-      await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
+    for (const model of MODELS) {
+      try {
+        upstream = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+            body: JSON.stringify(body),
+            signal: AbortSignal.timeout(18000),
+          }
+        );
+        data = await upstream.json();
+      } catch (e) {
+        console.error("Gemini attempt failed", model, String(e));
+        upstream = { ok: false, status: 503 };
+        data = {};
+        continue;
+      }
+      if (upstream.ok) break;
+      console.error("Gemini attempt", model, upstream.status, JSON.stringify(data).slice(0, 300));
+      if (![500, 503, 404].includes(upstream.status)) break;
     }
     if (!upstream.ok) {
       console.error("Gemini error", upstream.status, JSON.stringify(data).slice(0, 500));
