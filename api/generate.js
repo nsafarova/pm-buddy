@@ -54,6 +54,7 @@ export default async function handler(req, res) {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
         body: JSON.stringify(body),
+        signal: AbortSignal.timeout(50000),
       }
     );
     const data = await upstream.json();

@@ -472,7 +472,8 @@ async function callClaude(messages, tools) {
   const res = await fetch("/api/generate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(65000)
   });
   if (!res.ok) throw new Error("API error " + res.status);
   return res.json();
