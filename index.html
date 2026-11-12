@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PM Buddy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #F6F5F1;
+    --surface: #FFFFFF;
+    --ink: #21252B;
+    --chalk-dim: #5B6470;
+    --muted: #9AA0A6;
+    --amber: #C97A2B;
+    --amber-dim: #F0DFC4;
+    --sage: #2E9166;
+    --rust: #C7503F;
+    --line: #E7E4DC;
+    --field-bg: #FBFAF7;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+  }
+  .page{
+    max-width:760px;
+    margin:0 auto;
+    padding:44px 24px 90px;
+  }
+  @media (max-width:820px){.page{padding:28px 18px 60px;}}
+  header.top{margin-bottom:26px;}
+  .brand{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:15px;
+    font-weight:700;
+    letter-spacing:0.02em;
+    color:var(--muted);
+    margin-bottom:10px;
+  }
+  .brand span{color:var(--amber);}
+  h1{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:27px;
+    font-weight:700;
+    margin:0 0 6px;
+    color:var(--ink);
+  }
+  .subtitle{
+    color:var(--chalk-dim);
+    font-size:14px;
+    margin:0 0 4px;
+  }
+  .card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:22px;
+    margin-bottom:18px;
+    box-shadow:0 1px 2px rgba(33,37,43,0.04);
+  }
+  label{
+    display:block;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--amber);
+    margin-bottom:8px;
+  }
+  textarea, input[type=text]{
+    width:100%;
+    background:var(--field-bg);
+    border:1px solid var(--line);
+    color:var(--ink);
+    border-radius:7px;
+    padding:11px 12px;
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    resize:vertical;
+  }
+  textarea:focus, input[type=text]:focus{
+    outline:none;
+    border-color:var(--amber);
+  }
+  .field{margin-bottom:16px;}
+  .row{display:flex; align-items:center; justify-content:space-between; gap:12px;}
+  .toggle-row{
+    display:flex; align-items:center; gap:10px;
+    margin-bottom:18px;
+  }
+  .toggle{
+    width:38px; height:21px;
+    background:var(--field-bg);
+    border:1px solid var(--muted);
+    border-radius:11px;
+    position:relative;
+    cursor:pointer;
+    flex-shrink:0;
+    transition:border-color .15s;
+  }
+  .toggle .knob{
+    position:absolute; top:2px; left:2px;
+    width:15px; height:15px;
+    background:var(--muted);
+    border-radius:50%;
+    transition:all .18s ease;
+  }
+  .toggle.on{border-color:var(--amber);}
+  .toggle.on .knob{left:19px; background:var(--amber);}
+  .toggle-label{font-size:13px; color:var(--chalk-dim);}
+  .toggle-hint{font-size:11px; color:var(--muted); margin-left:48px; margin-top:-12px; margin-bottom:16px;}
+  button.primary{
+    background:var(--amber);
+    color:#FFFFFF;
+    border:none;
+    padding:11px 20px;
+    border-radius:7px;
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    font-size:14px;
+    cursor:pointer;
+  }
+  button.primary:disabled{opacity:0.5; cursor:wait;}
+  button.primary:hover:not(:disabled){background:#B76A22;}
+  .new-case-btn{
+    background:none;
+    border:1px dashed var(--muted);
+    color:var(--chalk-dim);
+    padding:8px 12px;
+    border-radius:7px;
+    font-family:'Inter',sans-serif;
+    font-size:13px;
+    cursor:pointer;
+  }
+  .new-case-btn:hover{border-color:var(--amber); color:var(--amber);}
+  .q-item{margin-bottom:16px;}
+  .q-item .q-text{
+    font-size:14px;
+    color:var(--ink);
+    margin-bottom:8px;
+    line-height:1.4;
+  }
+  .section-title{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:16px;
+    font-weight:600;
+    margin:0 0 4px;
+    color:var(--amber);
+  }
+  .section-sub{
+    font-size:11px;
+    color:var(--muted);
+    font-family:'JetBrains Mono',monospace;
+    margin-bottom:14px;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+  }
+  .section-body p{margin:0 0 10px; font-size:14px; line-height:1.55; color:var(--chalk-dim);}
+  .section-body ul{margin:0 0 10px; padding-left:18px;}
+  .section-body li{font-size:14px; line-height:1.55; color:var(--chalk-dim); margin-bottom:5px;}
+  .rice-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
+    margin:12px 0;
+  }
+  .rice-cell{
+    background:var(--field-bg);
+    border:1px solid var(--line);
+    border-radius:7px;
+    padding:10px 8px;
+    text-align:center;
+  }
+  .rice-cell .val{font-family:'JetBrains Mono',monospace; font-size:18px; font-weight:700; color:var(--amber);}
+  .rice-cell .lbl{font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:0.04em; margin-top:2px;}
+  .verdict-wrap{
+    display:flex;
+    justify-content:center;
+    padding:24px 0 8px;
+  }
+  .stamp{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:22px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    border:3px solid;
+    border-radius:8px;
+    padding:12px 26px;
+    transform:rotate(-4deg) scale(1);
+    animation:stamp-in .35s cubic-bezier(.2,1.4,.4,1);
+    background:var(--surface);
+  }
+  @keyframes stamp-in{
+    0%{transform:rotate(-4deg) scale(2.2); opacity:0;}
+    60%{opacity:1;}
+    100%{transform:rotate(-4deg) scale(1); opacity:1;}
+  }
+  .stamp.build{color:var(--sage); border-color:var(--sage);}
+  .stamp.validate{color:var(--amber); border-color:var(--amber);}
+  .stamp.dont{color:var(--rust); border-color:var(--rust);}
+  .loading{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    color:rgba(255,255,255,0.85);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .dot{width:5px; height:5px; background:#FFFFFF; border-radius:50%; animation:pulse 1s infinite ease-in-out;}
+  .dot:nth-child(2){animation-delay:.15s;} .dot:nth-child(3){animation-delay:.3s;}
+  @keyframes pulse{0%,100%{opacity:.3;}50%{opacity:1;}}
+  .error-banner{
+    background:rgba(199,80,63,0.08);
+    border:1px solid var(--rust);
+    color:#9C3B2E;
+    padding:10px 14px;
+    border-radius:7px;
+    font-size:13px;
+    margin-bottom:16px;
+  }
+  .divider{height:1px; background:var(--line); margin:34px 0 26px;}
+  .log-section .row{margin-bottom:14px;}
+  .case-log-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.08em;
+    color:var(--muted);
+    text-transform:uppercase;
+  }
+  .tag-filter{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    margin-bottom:14px;
+  }
+  .tag-chip{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    letter-spacing:0.02em;
+    padding:4px 8px;
+    border-radius:10px;
+    border:1px solid var(--line);
+    color:var(--muted);
+    cursor:pointer;
+    background:var(--surface);
+  }
+  .tag-chip:hover{border-color:var(--amber); color:var(--amber);}
+  .tag-chip.active{background:var(--amber); border-color:var(--amber); color:#FFFFFF;}
+  .case-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
+    gap:10px;
+  }
+  .case-item{
+    background:var(--surface);
+    padding:12px 13px;
+    border-radius:9px;
+    cursor:pointer;
+    font-size:13px;
+    color:var(--ink);
+    border:1px solid var(--line);
+    line-height:1.35;
+  }
+  .case-item:hover{border-color:var(--amber);}
+  .case-item .date{
+    display:block;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    color:var(--muted);
+    margin-top:4px;
+  }
+  .case-item .tags{
+    margin-top:6px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:4px;
+  }
+  .case-item .tags span{
+    font-family:'JetBrains Mono',monospace;
+    font-size:9px;
+    color:var(--amber);
+    background:var(--amber-dim);
+    border-radius:8px;
+    padding:2px 6px;
+  }
+  .empty-log{
+    font-size:12px;
+    color:var(--muted);
+    font-style:italic;
+    grid-column:1/-1;
+  }
+  .analysis-tags{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    margin-bottom:18px;
+  }
+  .analysis-tags span{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:var(--amber);
+    border:1px solid var(--amber-dim);
+    background:var(--amber-dim);
+    border-radius:10px;
+    padding:3px 9px;
+  }
+  .login-wrap{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+  .login-card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:32px;
+    max-width:360px;
+    width:100%;
+    box-shadow:0 2px 10px rgba(33,37,43,0.06);
+  }
+  .login-card .brand{margin-bottom:18px;}
+  .login-card h2{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:19px;
+    margin:0 0 6px;
+  }
+  .login-card p{
+    font-size:13px;
+    color:var(--chalk-dim);
+    margin:0 0 18px;
+    line-height:1.5;
+  }
+  .user-chip{
+    font-size:12px;
+    color:var(--muted);
+    font-family:'JetBrains Mono',monospace;
+  }
+  .user-chip a{color:var(--amber); cursor:pointer; text-decoration:none;}
+  .user-chip a:hover{text-decoration:underline;}
+</style>
+</head>
+<body>
+<div id="loginScreen" class="login-wrap" style="display:none;">
+  <div class="login-card">
+    <div class="brand">PM <span>Buddy</span></div>
+    <h2>Who's building cases today?</h2>
+    <p>Just a name, not a password. It keeps your case log separate from anyone else using this browser.</p>
+    <div class="field">
+      <input type="text" id="loginNameInput" placeholder="e.g. Nikki">
+    </div>
+    <div id="loginError"></div>
+    <button class="primary" id="loginBtn" style="width:100%;">Continue →</button>
+  </div>
+</div>
+
+<div id="appScreen" class="page" style="display:none;">
+  <header class="top">
+    <div class="row" style="align-items:flex-start;">
+      <div>
+        <div class="brand">PM <span>Buddy</span></div>
+        <h1>Feature Case Builder</h1>
+        <p class="subtitle">Pressure-test a feature idea like you'd scope it on a real team, or answer it in an interview.</p>
+        <div class="user-chip" id="userChip"></div>
+      </div>
+      <button class="new-case-btn" id="newCaseBtnTop" style="flex-shrink:0;">+ New case</button>
+    </div>
+  </header>
+
+  <div id="content"></div>
+
+  <div class="divider"></div>
+
+  <section class="log-section">
+    <div class="row">
+      <div class="case-log-label">Case log</div>
+      <button class="new-case-btn" id="newCaseBtn">+ New case</button>
+    </div>
+    <div class="tag-filter" id="tagFilter"></div>
+    <div class="case-grid" id="caseList"><div class="empty-log">No cases yet</div></div>
+  </section>
+</div>
+
+<script>
+const STORAGE_INDEX_KEY = "case-index";
+let current = { id: null, ideaText: "", productName: "", research: false, questions: [], answers: [], analysis: null, researchContext: "" };
+let currentUser = null;
+
+// ---------- Soft demo usage cap (per device, not per name) ----------
+const DEMO_CASE_LIMIT = 10;
+function getDemoCount() {
+  return parseInt(localStorage.getItem("pmbuddy-demo-count") || "0", 10);
+}
+function incrementDemoCount() {
+  localStorage.setItem("pmbuddy-demo-count", String(getDemoCount() + 1));
+}
+function demoRemaining() {
+  return Math.max(0, DEMO_CASE_LIMIT - getDemoCount());
+}
+
+function nsKey(key) {
+  return `pmbuddy:${currentUser}:${key}`;
+}
+
+// ---------- Local storage layer (namespaced per user) ----------
+async function storageGet(key) {
+  try {
+    const v = localStorage.getItem(nsKey(key));
+    return v !== null ? { value: v } : null;
+  } catch (e) { return null; }
+}
+async function storageSet(key, value) {
+  try { localStorage.setItem(nsKey(key), value); return true; } catch (e) { return false; }
+}
+
+// ---------- Session ----------
+function initSession() {
+  const saved = localStorage.getItem("pmbuddy-current-user");
+  if (saved) {
+    currentUser = saved;
+    showApp();
+  } else {
+    showLogin();
+  }
+}
+
+function showLogin() {
+  document.getElementById("loginScreen").style.display = "flex";
+  document.getElementById("appScreen").style.display = "none";
+  document.getElementById("loginNameInput").value = "";
+  document.getElementById("loginError").innerHTML = "";
+}
+
+function showApp() {
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("appScreen").style.display = "block";
+  document.getElementById("userChip").innerHTML = `Signed in as <strong>${currentUser}</strong> · <a id="switchUserLink">switch</a>`;
+  document.getElementById("switchUserLink").addEventListener("click", () => {
+    localStorage.removeItem("pmbuddy-current-user");
+    currentUser = null;
+    showLogin();
+  });
+  renderIntakeView();
+  renderSidebar();
+}
+
+document.getElementById("loginBtn").addEventListener("click", () => {
+  const name = document.getElementById("loginNameInput").value.trim();
+  const errBox = document.getElementById("loginError");
+  if (!name) {
+    errBox.innerHTML = '<div class="error-banner">Enter a name to continue.</div>';
+    return;
+  }
+  currentUser = name;
+  localStorage.setItem("pmbuddy-current-user", name);
+  showApp();
+});
+document.getElementById("loginNameInput").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") document.getElementById("loginBtn").click();
+});
+
+async function callClaude(messages, tools) {
+  const body = { model: "claude-sonnet-5", max_tokens: 1200, messages };
+  if (tools) body.tools = tools;
+  const res = await fetch("/api/claude", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) throw new Error("API error " + res.status);
+  return res.json();
+}
+
+function extractText(data) {
+  return (data.content || []).filter(b => b.type === "text").map(b => b.text).join("\n");
+}
+
+function parseJSONSafe(text) {
+  const clean = text.replace(/```json|```/g, "").trim();
+  return JSON.parse(clean);
+}
+
+function el(html) {
+  const d = document.createElement("div");
+  d.innerHTML = html.trim();
+  return d.firstElementChild;
+}
+
+// ---------- Storage ----------
+async function loadIndex() {
+  try {
+    const r = await storageGet(STORAGE_INDEX_KEY);
+    return r ? JSON.parse(r.value) : [];
+  } catch (e) { return []; }
+}
+async function saveIndex(idx) {
+  try { await storageSet(STORAGE_INDEX_KEY, JSON.stringify(idx)); } catch (e) {}
+}
+async function saveCase() {
+  const idx = await loadIndex();
+  const title = (current.productName ? current.productName + " — " : "") + current.ideaText.slice(0, 46) + (current.ideaText.length > 46 ? "…" : "");
+  const tags = (current.analysis && current.analysis.tags) ? current.analysis.tags : [];
+  const entry = { id: current.id, title, createdAt: new Date().toISOString(), tags };
+  const filtered = idx.filter(e => e.id !== current.id);
+  filtered.unshift(entry);
+  await saveIndex(filtered);
+  try { await storageSet("case:" + current.id, JSON.stringify(current)); } catch (e) {}
+  renderSidebar();
+}
+let activeTag = null;
+
+async function renderSidebar() {
+  const idx = await loadIndex();
+  const filterBox = document.getElementById("tagFilter");
+  const list = document.getElementById("caseList");
+
+  const allTags = Array.from(new Set(idx.flatMap(e => e.tags || []))).sort();
+  filterBox.innerHTML = "";
+  if (allTags.length) {
+    allTags.forEach(tag => {
+      const chip = el(`<button class="tag-chip${activeTag === tag ? " active" : ""}">${tag}</button>`);
+      chip.addEventListener("click", () => {
+        activeTag = activeTag === tag ? null : tag;
+        renderSidebar();
+      });
+      filterBox.appendChild(chip);
+    });
+  }
+
+  const filtered = activeTag ? idx.filter(e => (e.tags || []).includes(activeTag)) : idx;
+
+  if (!filtered.length) {
+    list.innerHTML = `<div class="empty-log">${activeTag ? "No cases with that tag yet" : "No cases yet"}</div>`;
+    return;
+  }
+  list.innerHTML = "";
+  filtered.forEach(e => {
+    const d = new Date(e.createdAt);
+    const tagsHtml = (e.tags || []).length ? `<div class="tags">${e.tags.map(t => `<span>${t}</span>`).join("")}</div>` : "";
+    const item = el(`<div class="case-item">${e.title}<span class="date">${d.toLocaleDateString()}</span>${tagsHtml}</div>`);
+    item.addEventListener("click", () => loadCase(e.id));
+    list.appendChild(item);
+  });
+}
+async function loadCase(id) {
+  try {
+    const r = await storageGet("case:" + id);
+    if (!r) return;
+    current = JSON.parse(r.value);
+    if (current.analysis) renderAnalysisView();
+    else if (current.questions.length) renderQuestionsView();
+    else renderIntakeView();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } catch (e) {}
+}
+
+// ---------- Views ----------
+function renderIntakeView() {
+  const content = document.getElementById("content");
+  content.innerHTML = "";
+  const card = el(`
+    <div class="card">
+      <div class="field">
+        <label>Feature idea</label>
+        <textarea id="ideaInput" rows="4" placeholder="Describe the feature you're considering, in your own words...">${current.ideaText}</textarea>
+      </div>
+      <div class="field">
+        <label>Product / company (optional)</label>
+        <input type="text" id="productInput" placeholder="e.g. Amplitude, Duolingo, IronCore" value="${current.productName}">
+      </div>
+      <div class="toggle-row">
+        <div class="toggle" id="researchToggle"><div class="knob"></div></div>
+        <span class="toggle-label">Research this product live before analyzing</span>
+      </div>
+      <div class="toggle-hint">Uses web search to ground the case in real product context.</div>
+      <div id="intakeError"></div>
+      <p style="font-size:11px; color:var(--muted); font-family:'JetBrains Mono',monospace; margin:0 0 14px;">${demoRemaining()} of ${DEMO_CASE_LIMIT} free demo cases left on this device</p>
+      <button class="primary" id="sharpenBtn">Sharpen this idea →</button>
+    </div>
+  `);
+  content.appendChild(card);
+
+  const toggle = document.getElementById("researchToggle");
+  toggle.classList.toggle("on", current.research);
+  toggle.addEventListener("click", () => {
+    current.research = !current.research;
+    toggle.classList.toggle("on", current.research);
+  });
+
+  document.getElementById("sharpenBtn").addEventListener("click", async () => {
+    const idea = document.getElementById("ideaInput").value.trim();
+    const product = document.getElementById("productInput").value.trim();
+    const errBox = document.getElementById("intakeError");
+    errBox.innerHTML = "";
+    if (demoRemaining() <= 0) {
+      errBox.innerHTML = '<div class="error-banner">This device has used its free demo cases. Reach out if you would like to keep testing PM Buddy.</div>';
+      return;
+    }
+    if (!idea) {
+      errBox.innerHTML = '<div class="error-banner">Add a feature description first.</div>';
+      return;
+    }
+    current.ideaText = idea;
+    current.productName = product;
+    current.id = current.id || (Date.now().toString(36) + Math.random().toString(36).slice(2, 6));
+
+    const btn = document.getElementById("sharpenBtn");
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading">Thinking through this <span class="dot"></span><span class="dot"></span><span class="dot"></span></span>';
+
+    try {
+      const sys = `You are a sharp, experienced PM helping a colleague clarify a feature idea before it gets properly scoped. Given only the feature description below (and optionally a product/company name), ask exactly 3 concise, specific clarifying questions whose answers would meaningfully change how you'd evaluate this idea (e.g. about the assumed problem, the target user, constraints, or what's already been tried). Do not ask generic questions. Respond ONLY with raw JSON, no markdown fences, no preamble, in this exact shape: {"questions": ["...", "...", "..."]}`;
+      const userMsg = `Feature idea: ${idea}\nProduct/company: ${product || "(not specified)"}`;
+      const data = await callClaude([{ role: "user", content: sys + "\n\n" + userMsg }]);
+      const parsed = parseJSONSafe(extractText(data));
+      current.questions = parsed.questions || [];
+      current.answers = current.questions.map(() => "");
+      renderQuestionsView();
+    } catch (e) {
+      errBox.innerHTML = '<div class="error-banner">Something went wrong reaching Claude. Try again.</div>';
+      btn.disabled = false;
+      btn.innerHTML = "Sharpen this idea →";
+    }
+  });
+}
+
+function renderQuestionsView() {
+  const content = document.getElementById("content");
+  content.innerHTML = "";
+  const card = el(`
+    <div class="card">
+      <div class="section-title">A few things to nail down</div>
+      <div class="section-sub">Answer briefly, gut instinct is fine</div>
+      <div id="qList"></div>
+      <div id="qError"></div>
+      <button class="primary" id="buildBtn">Build the case →</button>
+    </div>
+  `);
+  content.appendChild(card);
+  const qList = document.getElementById("qList");
+  current.questions.forEach((q, i) => {
+    const item = el(`
+      <div class="q-item">
+        <div class="q-text">${q}</div>
+        <input type="text" data-idx="${i}" value="${current.answers[i] || ""}" placeholder="Your answer...">
+      </div>
+    `);
+    qList.appendChild(item);
+  });
+
+  document.getElementById("buildBtn").addEventListener("click", async () => {
+    const inputs = qList.querySelectorAll("input");
+    inputs.forEach(inp => { current.answers[parseInt(inp.dataset.idx)] = inp.value.trim(); });
+
+    const btn = document.getElementById("buildBtn");
+    const errBox = document.getElementById("qError");
+    errBox.innerHTML = "";
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading">' + (current.research ? "Researching, then " : "") + 'building the case <span class="dot"></span><span class="dot"></span><span class="dot"></span></span>';
+
+    try {
+      let researchContext = "";
+      if (current.research && current.productName) {
+        const researchData = await callClaude(
+          [{ role: "user", content: `Research the product "${current.productName}" on the web. Summarize its core value proposition, target users, and any recent relevant product news in 4-6 sentences of plain prose.` }],
+          [{ type: "web_search_20250305", name: "web_search" }]
+        );
+        researchContext = extractText(researchData);
+        current.researchContext = researchContext;
+      }
+
+      const qaPairs = current.questions.map((q, i) => `Q: ${q}\nA: ${current.answers[i] || "(no answer given)"}`).join("\n");
+      const sys = `You are a senior product manager conducting a rigorous, honest feature validation review, the way you would when scoping a feature with your team or answering a product-sense interview question. Be specific and concrete, avoid generic filler. Respond ONLY with raw JSON, no markdown fences, no preamble, in this exact shape:
+{
+ "customer_segment": {"primary_segment": "...", "underlying_need": "...", "why_this_segment": "..."},
+ "value_assessment": {"worth_building": "...", "key_risks": ["...", "..."]},
+ "validation_approach": {"cheap_tests": ["...", "..."], "mvp_scope": "...", "assumptions_to_check": ["...", "..."]},
+ "metrics": {"leading_indicators": ["...", "..."], "lagging_indicators": ["...", "..."]},
+ "prioritization": {"reach": 1-10, "impact": 1-10, "confidence": 1-10, "effort": 1-10, "reasoning": "..."},
+ "verdict": "BUILD" | "VALIDATE FURTHER" | "DON'T BUILD",
+ "verdict_reasoning": "...",
+ "tags": ["...", "..."]
+}
+For "tags", give 2-4 short lowercase pattern labels (1-3 words each) that categorize the KIND of product issue this case surfaces, so similar cases can be grouped later — e.g. "brand mismatch", "vanity metric", "trust gap", "cold start", "social feature", "retention lever", "technical debt tradeoff". Pick labels that would genuinely recur across other unrelated products, not labels specific to this one idea.
+Keep every string field under 2 sentences and every array to at most 3 items.`;
+      const userMsg = `Feature idea: ${current.ideaText}\nProduct/company: ${current.productName || "(not specified)"}\n${researchContext ? "Real product context from research:\n" + researchContext + "\n" : ""}\nClarifying Q&A:\n${qaPairs}`;
+      const data = await callClaude([{ role: "user", content: sys + "\n\n" + userMsg }]);
+      current.analysis = parseJSONSafe(extractText(data));
+      incrementDemoCount();
+      await saveCase();
+      renderAnalysisView();
+    } catch (e) {
+      errBox.innerHTML = '<div class="error-banner">Something went wrong building the case. Try again.</div>';
+      btn.disabled = false;
+      btn.innerHTML = "Build the case →";
+    }
+  });
+}
+
+function verdictClass(v) {
+  if (v === "BUILD") return "build";
+  if (v === "DON'T BUILD") return "dont";
+  return "validate";
+}
+
+function renderAnalysisView() {
+  const content = document.getElementById("content");
+  content.innerHTML = "";
+  const a = current.analysis;
+  if (!a) { renderIntakeView(); return; }
+
+  const wrap = el(`<div></div>`);
+
+  if (a.tags && a.tags.length) {
+    wrap.appendChild(el(`<div class="analysis-tags">${a.tags.map(t => `<span>${t}</span>`).join("")}</div>`));
+  }
+
+  wrap.appendChild(el(`
+    <div class="card">
+      <div class="section-title">The idea</div>
+      <div class="section-sub">${current.productName || "General"}</div>
+      <div class="section-body"><p>${current.ideaText}</p></div>
+    </div>
+  `));
+
+  wrap.appendChild(el(`
+    <div class="card">
+      <div class="section-title">Who it's for</div>
+      <div class="section-sub">Customer segment</div>
+      <div class="section-body">
+        <p><strong>${a.customer_segment.primary_segment}</strong></p>
+        <p>${a.customer_segment.underlying_need}</p>
+        <p>${a.customer_segment.why_this_segment}</p>
+      </div>
+    </div>
+  `));
+
+  wrap.appendChild(el(`
+    <div class="card">
+      <div class="section-title">Is it worth building</div>
+      <div class="section-sub">Value assessment</div>
+      <div class="section-body">
+        <p>${a.value_assessment.worth_building}</p>
+        <ul>${a.value_assessment.key_risks.map(r => `<li>${r}</li>`).join("")}</ul>
+      </div>
+    </div>
+  `));
+
+  wrap.appendChild(el(`
+    <div class="card">
+      <div class="section-title">How to validate before you build</div>
+      <div class="section-sub">Validation approach</div>
+      <div class="section-body">
+        <ul>${a.validation_approach.cheap_tests.map(t => `<li>${t}</li>`).join("")}</ul>
+        <p><strong>MVP scope:</strong> ${a.validation_approach.mvp_scope}</p>
+        <p><strong>Assumptions to check first:</strong></p>
+        <ul>${a.validation_approach.assumptions_to_check.map(t => `<li>${t}</li>`).join("")}</ul>
+      </div>
+    </div>
+  `));
+
+  wrap.appendChild(el(`
+    <div class="card">
+      <div class="section-title">What tells you it's working</div>
+      <div class="section-sub">Success metrics</div>
+      <div class="section-body">
+        <p><strong>Leading indicators</strong></p>
+        <ul>${a.metrics.leading_indicators.map(t => `<li>${t}</li>`).join("")}</ul>
+        <p><strong>Lagging indicators</strong></p>
+        <ul>${a.metrics.lagging_indicators.map(t => `<li>${t}</li>`).join("")}</ul>
+      </div>
+    </div>
+  `));
+
+  const p = a.prioritization;
+  const score = ((p.reach + p.impact + p.confidence) / Math.max(p.effort, 1)).toFixed(1);
+  wrap.appendChild(el(`
+    <div class="card">
+      <div class="section-title">Where this ranks</div>
+      <div class="section-sub">RICE-style prioritization</div>
+      <div class="rice-grid">
+        <div class="rice-cell"><div class="val">${p.reach}</div><div class="lbl">Reach</div></div>
+        <div class="rice-cell"><div class="val">${p.impact}</div><div class="lbl">Impact</div></div>
+        <div class="rice-cell"><div class="val">${p.confidence}</div><div class="lbl">Confidence</div></div>
+        <div class="rice-cell"><div class="val">${p.effort}</div><div class="lbl">Effort</div></div>
+      </div>
+      <div class="section-body"><p><strong>Composite score: ${score}</strong> — ${p.reasoning}</p></div>
+    </div>
+  `));
+
+  wrap.appendChild(el(`
+    <div class="verdict-wrap">
+      <div class="stamp ${verdictClass(a.verdict)}">${a.verdict}</div>
+    </div>
+  `));
+  wrap.appendChild(el(`<div class="card"><div class="section-body"><p>${a.verdict_reasoning}</p></div></div>`));
+
+  content.appendChild(wrap);
+}
+
+function startNewCase() {
+  current = { id: null, ideaText: "", productName: "", research: false, questions: [], answers: [], analysis: null, researchContext: "" };
+  renderIntakeView();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+document.getElementById("newCaseBtn").addEventListener("click", startNewCase);
+document.getElementById("newCaseBtnTop").addEventListener("click", startNewCase);
+
+initSession();
+</script>
+</body>
+</html>
