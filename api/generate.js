@@ -48,19 +48,26 @@ export default async function handler(req, res) {
   }
 
   try {
-    const upstream = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
-        body: JSON.stringify(body),
-        signal: AbortSignal.timeout(50000),
-      }
-    );
-    const data = await upstream.json();
+    // Gemini sometimes answers 503 (high demand). Retry a few times with a short pause.
+    let upstream, data;
+    for (let attempt = 0; attempt < 4; attempt++) {
+      upstream = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+          body: JSON.stringify(body),
+          signal: AbortSignal.timeout(40000),
+        }
+      );
+      data = await upstream.json();
+      if (upstream.status !== 503 && upstream.status !== 500) break;
+      console.error("Gemini busy, attempt", attempt + 1, upstream.status);
+      await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
+    }
     if (!upstream.ok) {
       console.error("Gemini error", upstream.status, JSON.stringify(data).slice(0, 500));
-      const status = upstream.status === 429 ? 429 : 502;
+      const status = upstream.status === 429 ? 429 : upstream.status === 503 ? 503 : 502;
       return res.status(status).json({ error: "Upstream error", detail: data && data.error && data.error.message });
     }
     const parts = (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) || [];

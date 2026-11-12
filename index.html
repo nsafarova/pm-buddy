@@ -475,7 +475,7 @@ async function callClaude(messages, tools) {
     body: JSON.stringify(body),
     signal: AbortSignal.timeout(65000)
   });
-  if (!res.ok) throw new Error("API error " + res.status);
+  if (!res.ok) throw new Error(res.status === 503 ? "Google\u2019s AI is busy right now, please retry in a minute (503)" : "API error " + res.status);
   return res.json();
 }
 
