@@ -467,9 +467,9 @@ document.getElementById("loginNameInput").addEventListener("keydown", (e) => {
 });
 
 async function callClaude(messages, tools) {
-  const body = { model: "claude-sonnet-5", max_tokens: 1200, messages };
+  const body = { messages };
   if (tools) body.tools = tools;
-  const res = await fetch("/api/claude", {
+  const res = await fetch("/api/generate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body)
@@ -624,7 +624,7 @@ function renderIntakeView() {
       current.answers = current.questions.map(() => "");
       renderQuestionsView();
     } catch (e) {
-      errBox.innerHTML = '<div class="error-banner">Something went wrong reaching Claude. Try again.</div>';
+      errBox.innerHTML = '<div class="error-banner">Something went wrong reaching the AI. If you see this often, the free daily limit may be used up. Try again later.</div>';
       btn.disabled = false;
       btn.innerHTML = "Sharpen this idea →";
     }
