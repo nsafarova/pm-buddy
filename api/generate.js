@@ -3,7 +3,7 @@
 // Set GEMINI_API_KEY in Vercel project settings. Use a key from Google AI Studio
 // that does NOT have billing enabled, so the free tier can never charge you.
 
-const MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+const MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
 const MAX_OUTPUT_TOKENS = 2500;
 
 function toText(content) {
