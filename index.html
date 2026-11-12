@@ -624,7 +624,7 @@ function renderIntakeView() {
       current.answers = current.questions.map(() => "");
       renderQuestionsView();
     } catch (e) {
-      errBox.innerHTML = '<div class="error-banner">Something went wrong reaching the AI. If you see this often, the free daily limit may be used up. Try again later.</div>';
+      errBox.innerHTML = '<div class="error-banner">Something went wrong reaching the AI. If you see this often, the free daily limit may be used up. Try again later. (' + e.message + ')</div>';
       btn.disabled = false;
       btn.innerHTML = "Sharpen this idea →";
     }
@@ -697,7 +697,7 @@ Keep every string field under 2 sentences and every array to at most 3 items.`;
       await saveCase();
       renderAnalysisView();
     } catch (e) {
-      errBox.innerHTML = '<div class="error-banner">Something went wrong building the case. Try again.</div>';
+      errBox.innerHTML = '<div class="error-banner">Something went wrong building the case. Try again. (' + e.message + ')</div>';
       btn.disabled = false;
       btn.innerHTML = "Build the case →";
     }

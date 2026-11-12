@@ -22,6 +22,7 @@ export default async function handler(req, res) {
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
+    console.error("GEMINI_API_KEY is not set");
     return res.status(500).json({ error: "Server is missing GEMINI_API_KEY" });
   }
 
@@ -57,6 +58,7 @@ export default async function handler(req, res) {
     );
     const data = await upstream.json();
     if (!upstream.ok) {
+      console.error("Gemini error", upstream.status, JSON.stringify(data).slice(0, 500));
       const status = upstream.status === 429 ? 429 : 502;
       return res.status(status).json({ error: "Upstream error", detail: data && data.error && data.error.message });
     }
@@ -65,6 +67,7 @@ export default async function handler(req, res) {
     // Same shape the page already reads: { content: [{ type: "text", text }] }
     return res.status(200).json({ content: [{ type: "text", text }] });
   } catch (err) {
+    console.error("Gemini request failed", String(err));
     return res.status(502).json({ error: "Upstream request failed" });
   }
 }
